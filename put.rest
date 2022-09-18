@@ -1,0 +1,7 @@
+PUT http://localhost:3001/api/notes/6326cd87476c1b44ca6e8c2f HTTP/1.1
+Content-Type: : application/json
+
+{
+    "content": "testing put from vs code REST client",
+    "important": false
+}

@@ -19,7 +19,6 @@ app.use(express.static("build"));
 app.use(requestLogger);
 
 const Note = require("./models/note");
-const { query } = require("express");
 
 app.get("/", (req, res) => {
   res.send("Hello server with Express");

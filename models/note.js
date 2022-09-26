@@ -1,3 +1,4 @@
+// note.js file under the models dir defines Mongoose schema for notes
 const mongoose = require("mongoose");
 
 const noteSchema = new mongoose.Schema({

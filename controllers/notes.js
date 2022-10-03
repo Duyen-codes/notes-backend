@@ -37,7 +37,7 @@ notesRouter.post("/", (request, response, next) => {
     .save()
     .then((savedNote) => {
       console.log("savedNote", savedNote);
-      return response.json(savedNote);
+      return response.status(201).json(savedNote);
     })
     .catch((error) => next(error));
 });

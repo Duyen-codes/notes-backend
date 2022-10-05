@@ -1,22 +1,9 @@
-const mongoose = require("mongoose");
 const supertest = require("supertest");
+const mongoose = require("mongoose");
+const helper = require("./test_helper");
 const app = require("../app");
-
 const api = supertest(app);
 const Note = require("../models/note");
-
-const initialNotes = [
-  {
-    content: "HTML is easy",
-    date: new Date(),
-    important: false,
-  },
-  {
-    content: "Browser can execute only Javascript",
-    date: new Date(),
-    important: true,
-  },
-];
 
 beforeEach(async () => {
   await Note.deleteMany({});

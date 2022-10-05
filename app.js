@@ -1,6 +1,6 @@
 const config = require("./utils/config");
-
 const express = require("express");
+require("express-async-errors");
 // create an express application
 const app = express();
 const cors = require("cors");

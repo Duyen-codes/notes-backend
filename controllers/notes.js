@@ -114,11 +114,19 @@ notesRouter.put("/:id", (request, response, next) => {
 });
 
 notesRouter.delete("/:id", (request, response, next) => {
-  Note.findByIdAndRemove(request.params.id)
-    .then(() => {
-      response.status(204).end();
-    })
-    .catch((error) => next(error));
+  // Note.findByIdAndRemove(request.params.id)
+  //   .then(() => {
+  //     response.status(204).end();
+  //   })
+  //   .catch((error) => next(error));
+
+  try {
+    await Note.findByIdAndRemove(request.params.id)
+    response.status(204).end()
+  }
+  catch(exception) {
+    next(exception)
+  }
 });
 
 module.exports = notesRouter;

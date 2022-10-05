@@ -55,6 +55,7 @@ notesRouter.post("/", async (request, response, next) => {
       error: "content missing",
     });
   }
+
   const note = new Note({
     content: body.content,
     important: body.important === undefined ? false : body.important,
@@ -62,11 +63,16 @@ notesRouter.post("/", async (request, response, next) => {
     user: user._id,
   });
 
-  const savedNote = await note.save();
-  console.log("savedNote", savedNote);
-  user.notes = user.notes.concat(savedNote._id);
-  await user.save();
-  response.status(201).json(savedNote);
+  try {
+    const savedNote = await note.save();
+    console.log("savedNote", savedNote);
+    user.notes = user.notes.concat(savedNote._id);
+    await user.save();
+    response.status(201).json(savedNote);
+  } catch (exception) {
+    next(exception);
+  }
+
   // note
   //   .save()
   //   .then((savedNote) => {

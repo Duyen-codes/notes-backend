@@ -45,10 +45,10 @@ notesRouter.post("/", async (request, response, next) => {
   const body = request.body;
 
   const token = getTokenFrom(request);
-  console.log("token", token);
+
 
   const decodedToken = jwt.verify(token, process.env.SECRET);
-  console.log("decodedToken", decodedToken);
+
 
   if (!decodedToken.id) {
     return response.status(401).json({
@@ -59,8 +59,6 @@ notesRouter.post("/", async (request, response, next) => {
   const user = await User.findById(decodedToken.id);
 
   // const user = await User.findById(body.userId);
-
-  console.log("user", user);
 
   if (body.content === undefined) {
     response.status(400).json({
@@ -74,16 +72,19 @@ notesRouter.post("/", async (request, response, next) => {
     date: new Date(),
     user: user._id,
   });
-
-  try {
-    const savedNote = await note.save();
-    console.log("savedNote", savedNote);
+  const savedNote = await note.save();
     user.notes = user.notes.concat(savedNote._id);
     await user.save();
     response.status(201).json(savedNote);
-  } catch (exception) {
-    next(exception);
-  }
+  // try and catch
+  // try {
+  //   const savedNote = await note.save();
+  //   user.notes = user.notes.concat(savedNote._id);
+  //   await user.save();
+  //   response.status(201).json(savedNote);
+  // } catch (exception) {
+  //   next(exception);
+  // }
 
   // note
   //   .save()

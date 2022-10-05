@@ -6,6 +6,10 @@ Added 8.8.8.8 in the public DNS in my system under the Ethernet -IP V4 to get be
 
 - search
 
+## Libraries
+
+- [express-async-errors](https://github.com/davidbanham/express-async-errors)
+
 ## Project structure
 
 ![structure](directory-structure.png)

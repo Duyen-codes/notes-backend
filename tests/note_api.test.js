@@ -25,10 +25,12 @@ beforeEach(async () => {
   // const promiseArray = noteObjects.map((note) => note.save());
   // await Promise.all(promiseArray);
 
-  for (let note of helper.initialNotes) {
-    let noteObject = new Note(note);
-    await noteObject.save();
-  }
+  // for (let note of helper.initialNotes) {
+  //   let noteObject = new Note(note);
+  //   await noteObject.save();
+  // }
+
+  await Note.insertMany(helper.initialNotes);
 });
 
 test("notes are returned as json", async () => {

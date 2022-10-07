@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const helper = require("./test_helper");
 const app = require("../app");
 const api = supertest(app);
+
 const Note = require("../models/note");
 
 beforeEach(async () => {
@@ -33,25 +34,75 @@ beforeEach(async () => {
   await Note.insertMany(helper.initialNotes);
 });
 
-test("notes are returned as json", async () => {
-  await api
-    .get("/api/notes")
-    .expect(200)
-    .expect("Content-Type", /application\/json/);
-}, 100000);
+describe("when there is initially some notes saved", () => {
+  test("notes are returned as json", async () => {
+    await api
+      .get("/api/notes")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  }, 100000);
 
-test("all notes are returned", async () => {
-  const response = await api.get("/api/notes");
+  test("all notes are returned", async () => {
+    const response = await api.get("/api/notes");
 
-  expect(response.body).toHaveLength(helper.initialNotes.length);
+    expect(response.body).toHaveLength(helper.initialNotes.length);
+  });
+
+  test("a specific note is within the returned notes", async () => {
+    const response = await api.get("/api/notes");
+
+    const contents = response.body.map((r) => r.content);
+
+    expect(contents).toContain("Browser can execute only Javascript");
+  });
 });
 
-test("a specific note is within the returned notes", async () => {
-  const response = await api.get("/api/notes");
+describe("viewing a specific note", () => {
+  test("succeeds with a valid id", async () => {
+    const notesAtStart = await helper.notesInDb();
 
-  const contents = response.body.map((r) => r.content);
+    const noteToView = notesAtStart[0];
 
-  expect(contents).toContain("Browser can execute only Javascript");
+    console.log("noteToView", noteToView);
+    // noteToView {
+    //   content: 'HTML is easy',
+    //   date: 2022-10-07T06:52:21.883Z,
+    //   important: false,
+    //   id: '633fcca69be1e578478a879a'
+    // }
+
+    const resultNote = await api.get(`/api/notes/${noteToView.id}`);
+
+    console.log("resultNote body", resultNote.body);
+    // resultNote body {
+    //   content: 'HTML is easy',
+    //   date: '2022-10-07T06:52:21.883Z',
+    //   important: false,
+    //   id: '633fcca69be1e578478a879a'
+    // }
+    const stringifiedNote = JSON.stringify(noteToView);
+    console.log("stringifiedNote", stringifiedNote);
+    // stringifiedNote {"content":"HTML is easy","date":"2022-10-07T06:52:21.883Z","important":false,"id":"633fcca69be1e578478a879a"}
+    const parsedNote = JSON.parse(stringifiedNote);
+    console.log("parsedNote", parsedNote);
+    // parsedNote {
+    //   content: 'HTML is easy',
+    //   date: '2022-10-07T06:52:21.883Z',
+    //   important: false,
+    //   id: '633fcca69be1e578478a879a'
+    // }
+
+    const processedNoteToView = JSON.parse(JSON.stringify(noteToView));
+    expect(resultNote.body).toEqual(processedNoteToView);
+  });
+
+  test("fails with statuscode 404 if note does not exist", async () => {
+    const validNoneExistingId = await helper.nonExistingId();
+
+    console.log("validNoneExistingId", validNoneExistingId);
+
+    await api.get(`/api/blogs/${validNoneExistingId}`).expect(404);
+  });
 });
 
 // test adding a new note and verifies the amount of notes returned by the API increases
@@ -91,30 +142,13 @@ test("note without content is not added", async () => {
   expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
 });
 
-test("a specific note can be viewed", async () => {
-  const notesAtStart = await helper.notesInDb();
-
-  const noteToView = notesAtStart[0];
-
-  const resultNote = await api
-    .get(`/api/notes/${noteToView.id}`)
-    .expect(200)
-    .expect("Content-Type", /application\/json/);
-
-  // JSON.stringify: converts objects to JSON
-  // JSON.PARSE convert JSON back into an object
-  const processedNoteToView = JSON.parse(JSON.stringify(noteToView));
-
-  expect(resultNote.body).toEqual(processedNoteToView);
-});
-
 test("a note can be deleted", async () => {
   const notesAtStart = await helper.notesInDb();
   const noteToDelete = notesAtStart[0];
 
   await api.delete(`/api/notes/${noteToDelete.id}`).expect(204);
 
-  const notesAtEnd = await helper.notesInDb;
+  const notesAtEnd = await helper.notesInDb();
   expect(notesAtEnd).toHaveLength(helper.initialNotes.length - 1);
 
   const contents = notesAtEnd.map((r) => r.contents);

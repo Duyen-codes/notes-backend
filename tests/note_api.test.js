@@ -103,6 +103,12 @@ describe("viewing a specific note", () => {
 
     await api.get(`/api/blogs/${validNoneExistingId}`).expect(404);
   });
+
+  test("fails with 400 id is invalid", async () => {
+    const invalidId = "5a3d5da59070081a82a3445";
+
+    await api.get(`/api/notes/${invalidId}`).expect(400);
+  });
 });
 
 // test adding a new note and verifies the amount of notes returned by the API increases

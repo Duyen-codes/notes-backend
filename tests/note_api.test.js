@@ -113,39 +113,51 @@ describe("viewing a specific note", () => {
 
 // test adding a new note and verifies the amount of notes returned by the API increases
 
-test("a valid note can be added", async () => {
-  const newNote = {
-    content: "async/await simplifies making async calls",
-    important: true,
-  };
+describe("addition of a new note", () => {
+  test("succeeds with valid data", async () => {
+    const newNote = {
+      content: "async/await simplifies making async calls",
+      important: true,
+    };
 
-  await api
-    .post("/api/notes")
-    .send(newNote)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
+    await api
+      .post("/api/notes")
+      .send(newNote)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
-  // const response = await api.get("/api/notes");
-  // const contents = response.body.map((r) => r.content);
+    const notesAtEnd = helper.notesInDb();
+    expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1);
+    const contents = notesAtEnd.map((n) => n.content);
+    expect(contents).toContain("async/await simplifies making async calls");
+  });
 
-  // expect(response.body).toHaveLength(initialNotes.length + 1);
-  const notesAtEnd = await helper.notesInDb();
-  expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1);
+  test("fails with status code 400 if data is invalid", async () => {
+    const newNote = {
+      important: true,
+    };
 
-  const contents = notesAtEnd.map((n) => n.content);
+    await api.post("/api/notes").send(newNote).expect(400);
 
-  expect(contents).toContain("async/await simplifies making async calls");
+    const notesAtEnd = helper.notesInDb();
+    expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
+  });
 });
 
-test("note without content is not added", async () => {
-  const newNote = {
-    important: true,
-  };
+describe("deletion of a note", () => {
+  test("a note can be deleted", async () => {
+    const notesAtStart = await helper.notesInDb(); //await here is needed
+    const noteToDelete = notesAtStart[0];
+    console.log("noteToDelete", noteToDelete);
 
-  await api.post("/api/notes").send(newNote).expect(400);
+    await api.delete(`/api/notes/${noteToDelete.id}`).expect(204);
 
-  const notesAtEnd = helper.notesInDb();
-  expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
+    const notesAtEnd = await helper.notesInDb(); //await is needed
+    expect(notesAtEnd).toHaveLength(helper.initialNotes.length - 1);
+
+    const contents = notesAtEnd.map((n) => n.content);
+    expect(contents).not.toContain(noteToDelete.content);
+  });
 });
 
 test("a note can be deleted", async () => {

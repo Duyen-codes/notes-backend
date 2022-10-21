@@ -28,11 +28,8 @@ const getTokenFrom = (request) => {
 
 notesRouter.post("/", async (request, response, next) => {
   const body = request.body;
-
   const token = getTokenFrom(request);
-
   const decodedToken = jwt.verify(token, process.env.SECRET);
-
   if (!decodedToken.id) {
     return response.status(401).json({
       error: "token missing or invalid",
@@ -40,7 +37,6 @@ notesRouter.post("/", async (request, response, next) => {
   }
 
   const user = await User.findById(decodedToken.id);
-
   // const user = await User.findById(body.userId);
 
   if (body.content === undefined) {
@@ -81,8 +77,22 @@ notesRouter.put("/:id", (request, response, next) => {
 });
 
 notesRouter.delete("/:id", async (request, response, next) => {
-  await Note.findByIdAndRemove(request.params.id);
-  response.status(204).end();
+  const body = request.body;
+  const token = getTokenFrom(request);
+  const decodedToken = jwt.verify(token, process.env.SECRET);
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token missing or invalid" });
+  }
+
+  const user = await User.findById(decodedToken.id);
+
+  const userid = user._id;
+  const note = Note.findById(request.params.id);
+  if (note.user.toString() === userid.toString()) {
+    await Note.findByIdAndRemove(request.params.id);
+    response.status(204).end();
+  }
 });
 
 module.exports = notesRouter;

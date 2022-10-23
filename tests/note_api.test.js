@@ -132,18 +132,51 @@ describe("addition of a new note", () => {
 });
 
 describe("deletion of a note", () => {
-  test("a note can be deleted with valid token", async () => {
-    const notesAtStart = await helper.notesInDb();
-    const noteToDelete = notesAtStart[0];
+  beforeEach(async () => {
+    await User.deleteMany({});
+    const passwordHash = await bcrypt.hash("test", 10);
+    const user = new User({ username: "test", name: "test", passwordHash });
+    await user.save();
+  });
 
-    await api.delete(`/api/notes/${noteToDelete.id}`).expect(204);
+  test.only("a note can be deleted with valid token", async () => {
+    // login user
+    const response = await api
+      .post("/api/login")
+      .send({ username: "test", password: "test" });
+
+    //get token from response.body
+    const token = response.body.token;
+    console.log("token", token);
+
+    // new note to post
+    const note = {
+      content: "note to test deletion with token",
+      important: true,
+    };
+
+    // post new note with logged in token
+    await api
+      .post("/api/notes")
+      .send(note)
+      .set({ Authorization: `bearer ${token}` })
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
     const notesAtEnd = await helper.notesInDb();
-    expect(notesAtEnd).toHaveLength(helper.initialNotes.length - 1);
+    const noteToDelete = notesAtEnd[notesAtEnd.length - 1];
 
-    const contents = notesAtEnd.map((r) => r.contents);
+    // delete blog that is just created
+    await api
+      .delete(`/api/notes/${noteToDelete.id}`)
+      .set("authorization", `bearer ${token}`)
+      .expect(204);
+
+    const notesAtEndAfterDeleteOneNote = await helper.notesInDb();
+    expect(notesAtEndAfterDeleteOneNote).toHaveLength(notesAtEnd.length - 1);
+    const contents = notesAtEndAfterDeleteOneNote.map((n) => n.content);
     expect(contents).not.toContain(noteToDelete.content);
-  });
+  }, 10000);
 });
 
 afterAll(() => {

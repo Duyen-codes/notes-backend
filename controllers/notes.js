@@ -98,12 +98,12 @@ notesRouter.delete(
   "/:id",
   middleware.userExtractor,
   async (request, response, next) => {
-    const note = Note.findById(request.params.id);
+    const note = await Note.findById(request.params.id);
     const user = request.user;
     const userid = user._id;
 
     if (note.user.toString() === userid.toString()) {
-      await Note.findByIdAndRemove(request.params.id);
+      await Note.findByIdAndRemove(request.params.id); // w/o await here caused error Internal 500 error during test
       response.status(204).end();
     }
   }

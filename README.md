@@ -14,3 +14,4 @@
 ## Project structure
 
 ![structure](directory-structure.png)
+

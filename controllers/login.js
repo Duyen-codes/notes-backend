@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const loginRouter = require("express").Router();
 const User = require("../models/user");
+const logger = require("../utils/logger");
 
 loginRouter.post("/", async (request, response) => {
   const { username, password } = request.body;
@@ -13,7 +14,7 @@ loginRouter.post("/", async (request, response) => {
   const passwordCorrect =
     user === null ? false : await bcrypt.compare(password, user.passwordHash);
 
-  // if user is not found or password is incorrect, the request is responded to with the status code 401 unauthorized 
+  // if user is not found or password is incorrect, the request is responded to with the status code 401 unauthorized
   if (!(user && passwordCorrect)) {
     return response.status(401).json({
       error: "invalid username or password",
@@ -24,13 +25,13 @@ loginRouter.post("/", async (request, response) => {
     username: user.username,
     id: user._id,
   };
-  console.log("userForToken", userForToken);
+  logger.info("userForToken", userForToken);
 
   // token expires in 60*60 seconds, that is, in one hour
   const token = jwt.sign(userForToken, process.env.SECRET, {
     expiresIn: 60 * 60,
   });
-  console.log("token", token);
+  logger.info("token", token);
 
   // a successful request is responded to with the status code 200 OK. The generated token, username and name of the user are sent back in the response body
   response

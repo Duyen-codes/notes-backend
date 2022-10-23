@@ -65,7 +65,7 @@ describe("addition of a new note", () => {
     await user.save();
   });
 
-  test("succeeds with valid data", async () => {
+  test("succeeds with valid data and token", async () => {
     // login user
     const response = await api
       .post("/api/login")
@@ -93,7 +93,21 @@ describe("addition of a new note", () => {
     );
   });
 
-  test.only("fails with status code 400 if data is invalid", async () => {
+  test("fails with status code 401 unauthorized if token is missing", async () => {
+    const newNote = {
+      content: "this note should not be posted without token",
+      important: true,
+    };
+
+    await api.post("/api/notes").send(newNote).expect(401);
+
+    const notesAtEnd = await helper.notesInDb();
+    expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
+    const contents = notesAtEnd.map((n) => n.content);
+    expect(contents).not.toContain(newNote.content);
+  });
+
+  test("fails with status code 400 if data is invalid", async () => {
     // login user
     const response = await api
       .post("/api/login")
@@ -118,7 +132,7 @@ describe("addition of a new note", () => {
 });
 
 describe("deletion of a note", () => {
-  test("a note can be deleted", async () => {
+  test("a note can be deleted with valid token", async () => {
     const notesAtStart = await helper.notesInDb();
     const noteToDelete = notesAtStart[0];
 

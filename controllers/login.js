@@ -36,7 +36,12 @@ loginRouter.post("/", async (request, response) => {
   // a successful request is responded to with the status code 200 OK. The generated token, username and name of the user are sent back in the response body
   response
     .status(200)
-    .send({ token, username: user.username, name: user.name });
+    .send({
+      token,
+      username: user.username,
+      name: user.name,
+      userId: user._id,
+    });
 });
 
 module.exports = loginRouter;

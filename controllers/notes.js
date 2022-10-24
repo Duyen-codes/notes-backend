@@ -65,15 +65,11 @@ notesRouter.put(
   "/:id",
   middleware.userExtractor,
   async (request, response, next) => {
-    console.log("request.body", request.body);
     const { content, important } = request.body;
-    console.log("newNote content", content);
     const user = request.user;
-    console.log("user in put route", user);
     const userid = user._id;
-    const note = await Note.findById(request.params.id);
 
-    console.log("note to change in put route", note);
+    const note = await Note.findById(request.params.id);
     const newNote = {
       content,
       important,

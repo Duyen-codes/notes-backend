@@ -75,7 +75,7 @@ notesRouter.put(
       content,
       important,
     };
-
+    console.log("newNote from backend", newNote);
     if (note.user.toString() === userid.toString()) {
       const updatedNote = await Note.findByIdAndUpdate(
         request.params.id,

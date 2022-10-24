@@ -96,6 +96,7 @@ notesRouter.delete(
   async (request, response, next) => {
     const note = await Note.findById(request.params.id);
     const user = request.user;
+    console.log("user", user);
     const userid = user._id;
 
     if (note.user.toString() === userid.toString()) {

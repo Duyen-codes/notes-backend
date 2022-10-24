@@ -70,6 +70,7 @@ notesRouter.put(
     const userid = user._id;
 
     const note = await Note.findById(request.params.id);
+    console.log("foundNote of backend", note);
     const newNote = {
       content,
       important,
@@ -85,6 +86,7 @@ notesRouter.put(
           context: "query",
         }
       );
+      console.log("updatedNote from backend", updatedNote);
       response.status(200).json(updatedNote);
     }
   }

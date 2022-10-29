@@ -7,6 +7,7 @@
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
+    "start:test": "cross-env NODE_ENV=test node index.js",
     "flybuild:ui": "rm -rf build && cd ../notes-frontend/ && npm run build && cp -r build ../notes-backend",
     "flydeploy":"fly deploy",
     "flydeploy:full": "npm run flybuild:ui && npm run flydeploy",
